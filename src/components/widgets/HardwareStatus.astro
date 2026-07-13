@@ -1,0 +1,23 @@
+---
+import BaseWidget from './BaseWidget.astro';
+
+interface Props {
+  title?: string;
+  badge?: string;
+  cols?: number;
+  rows?: number;
+  printer?: string;
+  pi?: string;
+  temperature?: number;
+}
+
+const { title, badge, cols, rows, printer = 'unknown', pi = 'unknown', temperature = 0 } = Astro.props;
+---
+
+<BaseWidget title={title} badge={badge} cols={cols} rows={rows}>
+  <ul>
+    <li>Printer: {printer}</li>
+    <li>Raspberry Pi: {pi}</li>
+    <li>Temperature: {temperature}°C</li>
+  </ul>
+</BaseWidget>

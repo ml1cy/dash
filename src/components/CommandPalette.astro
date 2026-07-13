@@ -1,0 +1,19 @@
+<div class="palette" hidden data-command-palette>
+  <input type="search" placeholder="Type a command..." />
+</div>
+
+<script>
+  const palette = document.querySelector('[data-command-palette]');
+  window.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      palette?.toggleAttribute('hidden');
+      palette?.querySelector('input')?.focus();
+    }
+  });
+</script>
+
+<style>
+  .palette { position: fixed; inset: 15% 20%; background: #111827; border: 1px solid #334155; border-radius: .75rem; padding: 1rem; }
+  input { width: 100%; padding: .75rem; border-radius: .5rem; border: 1px solid #334155; background: #0f172a; color: inherit; }
+</style>
