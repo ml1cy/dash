@@ -3,7 +3,7 @@ import { env } from 'cloudflare:workers';
 
 const CORS_HEADERS = {
   'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  'access-control-allow-methods': 'POST,OPTIONS',
   'access-control-allow-headers': 'content-type,authorization',
 };
 
@@ -15,7 +15,7 @@ const resolveAllowList = (env?: Record<string, unknown>): string[] => {
 
   return value
     .split(',')
-    .map((host) => host.trim())
+    .map((host) => host.trim().toLowerCase())
     .filter(Boolean);
 };
 
@@ -32,7 +32,7 @@ const proxyHandler: APIRoute = async ({ request }) => {
   }
 
   const url = typeof payload.url === 'string' ? payload.url : '';
-  const method = typeof payload.method === 'string' ? payload.method : 'GET';
+  const method = typeof payload.method === 'string' ? payload.method.toUpperCase() : 'GET';
   const body = payload.body;
   if (!url) {
     return new Response(JSON.stringify({ error: 'Missing target URL.' }), {
@@ -59,17 +59,26 @@ const proxyHandler: APIRoute = async ({ request }) => {
   }
 
   const allowedHosts = resolveAllowList(env as Record<string, unknown>);
-  if (allowedHosts.length > 0 && !allowedHosts.includes(parsedUrl.host)) {
+  if (allowedHosts.length === 0) {
+    return new Response(JSON.stringify({ error: 'Proxy allowlist is not configured.' }), {
+      status: 403,
+      headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
+    });
+  }
+
+  if (!allowedHosts.includes(parsedUrl.hostname.toLowerCase())) {
     return new Response(JSON.stringify({ error: 'Host not allowed.' }), {
       status: 403,
       headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
     });
   }
 
+  const bodyAllowed = method !== 'GET' && method !== 'HEAD';
+
   const response = await fetch(parsedUrl.toString(), {
     method,
-    headers: body ? { 'content-type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
+    headers: bodyAllowed && body ? { 'content-type': 'application/json' } : undefined,
+    body: bodyAllowed && body ? JSON.stringify(body) : undefined,
   });
 
   const text = await response.text();
@@ -83,8 +92,4 @@ const proxyHandler: APIRoute = async ({ request }) => {
 };
 
 export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, headers: CORS_HEADERS });
-export const GET = proxyHandler;
 export const POST = proxyHandler;
-export const PUT = proxyHandler;
-export const PATCH = proxyHandler;
-export const DELETE = proxyHandler;

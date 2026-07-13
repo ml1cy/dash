@@ -32,13 +32,20 @@ const {
   document.querySelectorAll('button[data-endpoint]').forEach((button) => {
     button.addEventListener('click', async () => {
       const endpoint = button.getAttribute('data-endpoint');
-      const method = button.getAttribute('data-method') || 'POST';
+      if (!endpoint) {
+        return;
+      }
+
+      const method = (button.getAttribute('data-method') || 'POST').toUpperCase();
       const body = button.getAttribute('data-body') || '{}';
-      await fetch(endpoint, {
-        method,
-        headers: { 'content-type': 'application/json' },
-        body,
-      });
+      const bodyAllowed = method !== 'GET' && method !== 'HEAD';
+      await fetch(endpoint, bodyAllowed
+        ? {
+            method,
+            headers: { 'content-type': 'application/json' },
+            body,
+          }
+        : { method });
     });
   });
 </script>

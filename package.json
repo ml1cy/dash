@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --test test/config.test.mjs"
+    "test": "node --experimental-strip-types --test test/config.test.mjs"
   },
   "repository": {
     "type": "git",

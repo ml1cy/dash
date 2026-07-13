@@ -82,10 +82,29 @@ export const parseDashboardConfig = (rawYaml: string): DashboardConfig => {
   };
 };
 
-export const loadDashboardConfig = (env?: Record<string, unknown>): DashboardConfig => {
-  const rawYaml = typeof env?.DASHBOARD_CONFIG === 'string' && env.DASHBOARD_CONFIG.trim()
-    ? env.DASHBOARD_CONFIG
-    : DEFAULT_CONFIG_YAML;
+const isKvNamespaceLike = (value: unknown): value is { get: (key: string) => Promise<string | null> } =>
+  isObject(value) && typeof value.get === 'function';
 
+export const loadDashboardConfigYaml = async (env?: Record<string, unknown>): Promise<string> => {
+  if (typeof env?.DASHBOARD_CONFIG === 'string' && env.DASHBOARD_CONFIG.trim()) {
+    return env.DASHBOARD_CONFIG;
+  }
+
+  if (isKvNamespaceLike(env?.DASHBOARD_CONFIG)) {
+    try {
+      const value = await env.DASHBOARD_CONFIG.get('dashboard.yaml');
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    } catch {
+      // Fall back to default config below.
+    }
+  }
+
+  return DEFAULT_CONFIG_YAML;
+};
+
+export const loadDashboardConfig = async (env?: Record<string, unknown>): Promise<DashboardConfig> => {
+  const rawYaml = await loadDashboardConfigYaml(env);
   return parseDashboardConfig(rawYaml);
 };
