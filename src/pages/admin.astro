@@ -1,0 +1,19 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import { DEFAULT_CONFIG_YAML } from '../lib/config';
+import { env } from 'cloudflare:workers';
+
+const yamlConfig = (typeof env?.DASHBOARD_CONFIG === 'string' && env.DASHBOARD_CONFIG.trim())
+  ? env.DASHBOARD_CONFIG
+  : DEFAULT_CONFIG_YAML;
+---
+
+<DashboardLayout title="Dashboard Admin">
+  <h1>Dashboard YAML Editor</h1>
+  <p>Use this route to inspect/edit YAML configuration stored in Cloudflare KV.</p>
+  <textarea rows="24">{yamlConfig}</textarea>
+</DashboardLayout>
+
+<style>
+  textarea { width: 100%; background: #0f172a; color: inherit; border: 1px solid #334155; border-radius: .5rem; padding: .75rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+</style>

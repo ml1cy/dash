@@ -1,0 +1,23 @@
+---
+import BaseWidget from './BaseWidget.astro';
+
+interface Props {
+  title?: string;
+  badge?: string;
+  cols?: number;
+  rows?: number;
+  open?: number;
+  inProgress?: number;
+  overdue?: number;
+}
+
+const { title, badge, cols, rows, open = 0, inProgress = 0, overdue = 0 } = Astro.props;
+---
+
+<BaseWidget title={title} badge={badge} cols={cols} rows={rows}>
+  <ul>
+    <li>Open: {open}</li>
+    <li>In progress: {inProgress}</li>
+    <li>Overdue: {overdue}</li>
+  </ul>
+</BaseWidget>

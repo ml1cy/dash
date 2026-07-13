@@ -1,0 +1,29 @@
+{
+  "name": "dash",
+  "version": "1.0.0",
+  "description": "dumb customizable dashboard cuz I'm board",
+  "main": "index.js",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --test test/config.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ml1cy/dash.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ml1cy/dash/issues"
+  },
+  "homepage": "https://github.com/ml1cy/dash#readme",
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.1.2",
+    "astro": "^7.0.7",
+    "js-yaml": "^5.2.1"
+  },
+  "type": "module"
+}

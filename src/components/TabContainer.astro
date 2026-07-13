@@ -1,0 +1,74 @@
+---
+import DynamicGrid from './DynamicGrid.astro';
+import ServiceTickets from './widgets/ServiceTickets.astro';
+import HardwareStatus from './widgets/HardwareStatus.astro';
+import CommandButton from './widgets/CommandButton.astro';
+import type { DashboardTab } from '../lib/config';
+
+interface Props {
+  tabs: DashboardTab[];
+}
+
+const { tabs } = Astro.props;
+const initialTab = tabs[0]?.id;
+---
+
+<div class="tabs" data-initial-tab={initialTab}>
+  <nav>
+    {tabs.map((tab) => (
+      <button type="button" data-tab-trigger={tab.id}>{tab.label}</button>
+    ))}
+  </nav>
+  {tabs.map((tab) => (
+    <section data-tab-panel={tab.id}>
+      <DynamicGrid columns={tab.columns}>
+        {tab.widgets.map((widget) => {
+          const props = {
+            title: widget.title,
+            badge: widget.badge,
+            cols: widget.cols,
+            rows: widget.rows,
+            ...widget.props,
+          };
+
+          if (widget.type === 'ServiceTickets') {
+            return <ServiceTickets {...props} />;
+          }
+          if (widget.type === 'HardwareStatus') {
+            return <HardwareStatus {...props} />;
+          }
+          return <CommandButton {...props} />;
+        })}
+      </DynamicGrid>
+    </section>
+  ))}
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('[data-initial-tab]');
+  tabs.forEach((root) => {
+    const initial = root.getAttribute('data-initial-tab');
+    const triggers = root.querySelectorAll('[data-tab-trigger]');
+    const panels = root.querySelectorAll('[data-tab-panel]');
+
+    const select = (id) => {
+      triggers.forEach((trigger) => {
+        trigger.classList.toggle('active', trigger.getAttribute('data-tab-trigger') === id);
+      });
+      panels.forEach((panel) => {
+        panel.toggleAttribute('hidden', panel.getAttribute('data-tab-panel') !== id);
+      });
+    };
+
+    select(initial);
+    triggers.forEach((trigger) => {
+      trigger.addEventListener('click', () => select(trigger.getAttribute('data-tab-trigger')));
+    });
+  });
+</script>
+
+<style>
+  nav { display: flex; gap: .5rem; margin-bottom: 1rem; }
+  button { background: #111827; color: inherit; border: 1px solid #334155; border-radius: .5rem; padding: .4rem .8rem; }
+  button.active { background: #1d4ed8; border-color: #1d4ed8; }
+</style>

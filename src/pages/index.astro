@@ -1,0 +1,15 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import TabContainer from '../components/TabContainer.astro';
+import CommandPalette from '../components/CommandPalette.astro';
+import { loadDashboardConfig } from '../lib/config';
+import { env } from 'cloudflare:workers';
+
+const config = loadDashboardConfig(env as Record<string, unknown>);
+---
+
+<DashboardLayout title={config.title}>
+  <h1>{config.title}</h1>
+  <TabContainer tabs={config.tabs} />
+  <CommandPalette />
+</DashboardLayout>
